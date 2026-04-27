@@ -60,15 +60,6 @@
     object-fit: contain;
   }
 
-  .water-strip {
-    height: 12mm;
-    margin: 0 -14mm 6mm;
-    
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
   .hero {
     width: 100%;
     height: 148mm;
@@ -146,15 +137,48 @@
     font-weight: 400;
   }
 
-  .notes {
+  .notes-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+    margin: 4mm 0;
+  }
+
+  .notes-box {
     font-size: 9.5pt;
     color: #444;
     line-height: 1.5;
-    margin: 4mm 0;
     padding: 3mm 4mm;
     background: var(--bg-soft);
     border-radius: 4px;
-    border-right: 2px solid var(--brazim-orange);
+  }
+
+  .notes-global {
+    border-right: 3px solid var(--brazim-blue);
+  }
+
+  .notes-model {
+    border-right: 3px solid var(--brazim-orange);
+  }
+
+  .notes-label {
+    display: block;
+    font-size: 8pt;
+    font-weight: 700;
+    margin-bottom: 1mm;
+    letter-spacing: 0.3px;
+  }
+
+  .notes-global .notes-label {
+    color: var(--brazim-blue);
+  }
+
+  .notes-model .notes-label {
+    color: var(--brazim-orange);
+  }
+
+  .notes-empty {
+    display: none;
   }
 
   .bottom-bar {
@@ -267,8 +291,6 @@
       <img src="" id="logo_img" alt="Brazim" class="logo-img">
     </div>
 
-    <div class="water-strip"></div>
-
     <div class="hero">
       <img src="" id="product_img" alt="ארון אמבטיה">
       <div class="hero-watermark"><span>Brazim</span><span class="blue">.co.il</span></div>
@@ -295,8 +317,15 @@
       </div>
     </div>
 
-    <div class="notes">
-      <span id="notes_text">-</span>
+    <div class="notes-wrap">
+      <div class="notes-box notes-global" id="notes_global_box">
+        <span class="notes-label">מידע כללי</span>
+        <span id="notes_global_text">-</span>
+      </div>
+      <div class="notes-box notes-model" id="notes_model_box">
+        <span class="notes-label">לדגם זה</span>
+        <span id="notes_model_text">-</span>
+      </div>
     </div>
 
     <div class="bottom-bar">
@@ -363,7 +392,6 @@ window.addEventListener('DOMContentLoaded', function() {
   // Images
   setImg('logo_img', getParam('logo'));
   setImg('product_img', getParam('product'));
-  setBg('.water-strip', getParam('water'));
   
   // QR code - generate from album URL
   const albumUrl = getParam('album');
@@ -379,7 +407,22 @@ window.addEventListener('DOMContentLoaded', function() {
   setText('price_120', formatNum(getParam('p120')));
   
   // Text fields
-  setText('notes_text', decodeURIComponent(getParam('notes') || ''));
+  // Notes - separate global and model-specific
+  const notesGlobal = decodeURIComponent(getParam('notes_global') || '');
+  const notesModel = decodeURIComponent(getParam('notes_model') || '');
+  
+  if (notesGlobal && notesGlobal.trim()) {
+    setText('notes_global_text', notesGlobal);
+  } else {
+    document.getElementById('notes_global_box').style.display = 'none';
+  }
+  
+  if (notesModel && notesModel.trim()) {
+    setText('notes_model_text', notesModel);
+  } else {
+    document.getElementById('notes_model_box').style.display = 'none';
+  }
+  
   setText('whatsapp_num', getParam('whatsapp'));
   setText('sku_num', getParam('sku'));
 });
