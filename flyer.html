@@ -153,6 +153,40 @@
     border-radius: 4px;
   }
 
+  .notes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .notes-list li {
+    position: relative;
+    padding-right: 4mm;
+    margin-bottom: 0.8mm;
+  }
+
+  .notes-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .notes-list li::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 1.8mm;
+    width: 1.5mm;
+    height: 1.5mm;
+    border-radius: 50%;
+  }
+
+  .notes-global .notes-list li::before {
+    background: var(--brazim-blue);
+  }
+
+  .notes-model .notes-list li::before {
+    background: var(--brazim-orange);
+  }
+
   .notes-global {
     border-right: 3px solid var(--brazim-blue);
   }
@@ -320,11 +354,11 @@
     <div class="notes-wrap">
       <div class="notes-box notes-model" id="notes_model_box">
         <span class="notes-label">לדגם זה</span>
-        <span id="notes_model_text">-</span>
+        <ul class="notes-list" id="notes_model_list"></ul>
       </div>
       <div class="notes-box notes-global" id="notes_global_box">
         <span class="notes-label">מידע כללי</span>
-        <span id="notes_global_text">-</span>
+        <ul class="notes-list" id="notes_global_list"></ul>
       </div>
     </div>
 
@@ -406,22 +440,25 @@ window.addEventListener('DOMContentLoaded', function() {
   setText('price_100', formatNum(getParam('p100')));
   setText('price_120', formatNum(getParam('p120')));
   
-  // Text fields
-  // Notes - separate global and model-specific
-  const notesGlobal = decodeURIComponent(getParam('notes_global') || '');
-  const notesModel = decodeURIComponent(getParam('notes_model') || '');
-  
-  if (notesGlobal && notesGlobal.trim()) {
-    setText('notes_global_text', notesGlobal);
-  } else {
-    document.getElementById('notes_global_box').style.display = 'none';
+  // Notes - separate global and model-specific, split by | for bullets
+  function renderNotes(text, listId, boxId) {
+    const decoded = decodeURIComponent(text || '').trim();
+    if (!decoded) {
+      document.getElementById(boxId).style.display = 'none';
+      return;
+    }
+    const items = decoded.split('|').map(s => s.trim()).filter(s => s);
+    const list = document.getElementById(listId);
+    list.innerHTML = '';
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      list.appendChild(li);
+    });
   }
   
-  if (notesModel && notesModel.trim()) {
-    setText('notes_model_text', notesModel);
-  } else {
-    document.getElementById('notes_model_box').style.display = 'none';
-  }
+  renderNotes(getParam('notes_global'), 'notes_global_list', 'notes_global_box');
+  renderNotes(getParam('notes_model'), 'notes_model_list', 'notes_model_box');
   
   setText('whatsapp_num', getParam('whatsapp'));
   setText('sku_num', getParam('sku'));
